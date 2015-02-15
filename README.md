@@ -13,6 +13,42 @@ npm install --save react-side-effect
 * Firing Flux actions using declarative API depending on current screen;
 * Some crazy stuff I haven't thought about.
 
+## How's That Different from `componentDidUpdate`?
+
+It gathers current props across *the whole tree* before passing them to side effect. For example, this allows you to create `<BodyStyle style>` component like this:
+
+```js
+// RootComponent.js
+return (
+  <BodyStyle style={{ backgroundColor: 'red' }}>
+    {this.state.something ? <SomeComponent /> : <OtherComponent />}
+  </BodyStyle>
+);
+
+// SomeComponent.js
+return (
+  <BodyStyle style={{ backgroundColor: this.state.color }}>
+    <div>Choose color: <input valueLink={this.linkState('color')} /></div>
+  </BodyStyle>
+);
+```
+
+and let the effect handler merge `style` from different level of nesting with innermost winning:
+
+```js
+var BodyStyle = createSideEffect(function handleChange(propsList) {
+  var style = {};
+  propsList.forEach(function (props) {
+    Object.assign(style, props.style);
+  });
+  
+  for (var key in style) {
+    document.style[key] = style[key];
+  }
+});
+```
+
+
 ## API
 
 #### `createSideEffect: (onChange: Array<Props> -> ()) -> ReactComponent`
