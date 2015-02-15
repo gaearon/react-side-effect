@@ -1,4 +1,4 @@
-# react-side-effect
+# React Side Effect
 Create components whose prop changes map to a global side effect.
 
 ## Installation
