@@ -19,13 +19,13 @@ When rendering on server, you must call it after each request.
 
 ## Usage
 
-Here's how to implement [React Document Title](https://github.com/gaearon/react-document-title) using React Side Effect:
+Here's how to implement [React Document Title](https://github.com/gaearon/react-document-title) (both client and server side) using React Side Effect:
 
 ```js
 'use strict';
 
 var React = require('react'),
-    createSideEffect = require('./createSideEffect');
+    createSideEffect = require('react-side-effect');
 
 /**
  * Extract title from a list of each mounted component's props.
