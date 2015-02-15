@@ -7,6 +7,12 @@ Create components whose prop changes map to a global side effect.
 npm install --save react-side-effect
 ```
 
+## Use Cases
+
+* Setting `document.style.overflow` or background color depending on current screen;
+* Firing Flux actions using declarative API depending on current screen;
+* Some crazy stuff I haven't thought about.
+
 ## API
 
 #### `createSideEffect: (onChange: Array<Props> -> ()) -> ReactComponent`
