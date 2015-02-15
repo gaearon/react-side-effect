@@ -1,0 +1,22 @@
+{
+  "name": "react-side-effect",
+  "version": "0.1.0",
+  "description": "Create components whose prop changes map to a global side effect",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gaearon/react-side-effect.git"
+  },
+  "keywords": [
+    "react",
+    "component",
+    "side",
+    "effect"
+  ],
+  "author": "Dan Abramov <dan.abramov@me.com> (http://github.com/gaearon)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gaearon/react-side-effect/issues"
+  },
+  "homepage": "https://github.com/gaearon/react-side-effect"
+}
