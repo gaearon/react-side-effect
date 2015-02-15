@@ -11,7 +11,7 @@ npm install --save react-side-effect
 
 #### `createSideEffect: (onChange: Array<Props> -> ()) -> ReactComponent`
 
-Returns a component that, when mounted, unmounted or having received new props, calls `onChange` with each mounted component's `props`.
+Returns a component that, when mounting, unmounting or receiving new props, calls `onChange` with `props` of **each mounted instance**.
 It's up to you to `reduce` them, use innermost values, or whatever you fancy.
 
 Component will have a static `dispose()` method to clear the stack of mounted instances.  
