@@ -51,13 +51,15 @@ var BodyStyle = createSideEffect(function handleChange(propsList) {
 
 ## API
 
-#### `createSideEffect: (onChange: Array<Props> -> ()) -> ReactComponent`
+#### `createSideEffect: (onChange: Array<Props> -> (), mixin: Object?) -> ReactComponent`
 
 Returns a component that, when mounting, unmounting or receiving new props, calls `onChange` with `props` of **each mounted instance**.
 It's up to you to `reduce` them, use innermost values, or whatever you fancy.
 
 Component will have a static `dispose()` method to clear the stack of mounted instances.  
 When rendering on server, you must call it after each request.
+
+You can use optional second `mixin` parameter to specify `propTypes`, `displayName` or `statics`. It will be mixed into the generated component.
 
 ## Usage
 
@@ -85,7 +87,7 @@ var _serverTitle = null;
 /**
  * Generate a component that reacts to mounting, onmounting and prop changes by updating document title.
  */
-var SetDocumentTitle = createSideEffect(function handleChange(propsList) {
+var DocumentTitle = createSideEffect(function handleChange(propsList) {
   var title = extractTitle(propsList);
 
   if (typeof document !== 'undefined') {
@@ -93,12 +95,9 @@ var SetDocumentTitle = createSideEffect(function handleChange(propsList) {
   } else {
     _serverTitle = title || null;
   }
-});
+}, {
+  displayName: 'DocumentTitle',
 
-/**
- * Create a wrapper for it with propTypes, displayName and helpers for server and testing.
- */
-var DocumentTitle = React.createClass({
   propTypes: {
     title: React.PropTypes.string.isRequired
   },
@@ -116,13 +115,9 @@ var DocumentTitle = React.createClass({
      */
     rewind: function () {
       var title = _serverTitle;
-      SetDocumentTitle.dispose();
+      this.dispose();
       return title;
     }
-  },
-
-  render: function () {
-    return React.createElement(SetDocumentTitle, this.props);
   }
 });
 
