@@ -1,8 +1,10 @@
+'use strict';
+
 var React = require('react'),
     invariant = require('react/lib/invariant'),
     shallowEqual = require('react/lib/shallowEqual');
 
-function createSideEffect(onChange, options) {
+function createSideEffect(onChange, mixin) {
   invariant(
     typeof onChange === 'function',
     'onChange(propsList) is a required argument.'
@@ -17,6 +19,8 @@ function createSideEffect(onChange, options) {
   }
 
   return React.createClass({
+    mixins: [mixin],
+
     statics: {
       dispose: function () {
         mountedInstances = [];
