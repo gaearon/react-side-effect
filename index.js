@@ -4,7 +4,7 @@ var React = require('react'),
     invariant = require('react/lib/invariant'),
     shallowEqual = require('react/lib/shallowEqual');
 
-function createSideEffect(onChange, mixin) {
+function createSideEffect(onChange, mixin, render) {
   invariant(
     typeof onChange === 'function',
     'onChange(propsList) is a required argument.'
@@ -18,7 +18,7 @@ function createSideEffect(onChange, mixin) {
     }));
   }
 
-  return React.createClass({
+  var componentPrototype = {
     mixins: [mixin],
 
     statics: {
@@ -54,7 +54,18 @@ function createSideEffect(onChange, mixin) {
         return null;
       }
     }
-  });
+  };
+
+  if(render) {
+    invariant(
+      typeof render === 'function',
+      'if specified, render must be a function.'
+    );
+
+    componentPrototype.render = render;
+  }
+
+  return React.createClass(componentPrototype);
 }
 
 module.exports = createSideEffect;
