@@ -15,28 +15,25 @@ const RESERVED_PROPS = {
 
 export default (Component) => {
     invariant(
-        typeof Component.handleChange === "function",
+        typeof Object.is(Component.handleChange, "function"),
         "handleChange(propsList) is not a function."
     );
 
-    let mountedInstances = [];
-    let emitChange = () => {
-        Component.handleChange(mountedInstances.map(instance => instance.props));
+    const mountedInstances = new Set();
+    const emitChange = () => {
+        Component.handleChange([...mountedInstances].map(instance => instance.props));
     };
 
     class CreateSideEffect extends React.Component {
-        static dispose() {
-            mountedInstances = [];
+        static displayName = "CreateSideEffect"
+
+        componentWillMount() {
+            mountedInstances.add(this);
             emitChange();
-        };
+        }
 
         shouldComponentUpdate(nextProps) {
             return !shallowEqual(nextProps, this.props);
-        }
-
-        componentWillMount() {
-            mountedInstances.push(this);
-            emitChange();
         }
 
         componentDidUpdate() {
@@ -44,8 +41,15 @@ export default (Component) => {
         }
 
         componentWillUnmount() {
-            let index = mountedInstances.indexOf(this);
-            mountedInstances.splice(index, 1);
+            if (mountedInstances.has(this)) {
+                mountedInstances.delete(this);
+            }
+
+            emitChange();
+        }
+
+        static dispose() {
+            mountedInstances.clear();
             emitChange();
         }
 
@@ -56,11 +60,13 @@ export default (Component) => {
         }
     }
 
-    Object.getOwnPropertyNames(Component).filter(componentKey => {
-        return Component.hasOwnProperty(componentKey) && !RESERVED_PROPS[componentKey];
-    }).forEach(componentKey => {
-        CreateSideEffect[componentKey] = Component[componentKey];
-    });
+    Object.getOwnPropertyNames(Component)
+        .filter(componentKey => {
+            return Component.hasOwnProperty(componentKey) && !RESERVED_PROPS[componentKey];
+        })
+        .forEach(componentKey => {
+            CreateSideEffect[componentKey] = Component[componentKey];
+        });
 
     return CreateSideEffect;
 };
