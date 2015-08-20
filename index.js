@@ -1,8 +1,8 @@
 'use strict';
 
 var React = require('react'),
-    invariant = require('react/lib/invariant'),
-    shallowEqual = require('react/lib/shallowEqual');
+    invariant = require('fbjs/lib/invariant'),
+    shallowEqual = require('fbjs/lib/shallowEqual');
 
 function createSideEffect(onChange, mixin) {
   invariant(
