@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/gaearon/react-side-effect/issues"
   },
-  "homepage": "https://github.com/gaearon/react-side-effect"
+  "homepage": "https://github.com/gaearon/react-side-effect",
+  "dependencies": {
+    "fbjs": "0.1.0-alpha.10"
+  }
 }
