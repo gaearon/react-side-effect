@@ -1,6 +1,6 @@
 {
   "name": "react-side-effect",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Create components whose prop changes map to a global side effect",
   "main": "index.js",
   "repository": {
