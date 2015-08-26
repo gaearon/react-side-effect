@@ -1,60 +1,72 @@
-'use strict';
+import React from "react";
+import invariant from "fbjs/lib/invariant";
+import shallowEqual from "fbjs/lib/shallowEqual";
 
-var React = require('react'),
-    invariant = require('fbjs/lib/invariant'),
-    shallowEqual = require('fbjs/lib/shallowEqual');
+const RESERVED_PROPS = {
+    arguments: true,
+    caller: true,
+    key: true,
+    length: true,
+    name: true,
+    prototype: true,
+    ref: true,
+    type: true
+};
 
-function createSideEffect(onChange, mixin) {
-  invariant(
-    typeof onChange === 'function',
-    'onChange(propsList) is a required argument.'
-  );
+export default (Component) => {
+    invariant(
+        Object.is(typeof Component.handleChange, "function"),
+        "handleChange(propsList) is not a function."
+    );
 
-  var mountedInstances = [];
+    const mountedInstances = new Set();
+    const emitChange = () => {
+        Component.handleChange([...mountedInstances].map(instance => instance.props));
+    };
 
-  function emitChange() {
-    onChange(mountedInstances.map(function (instance) {
-      return instance.props;
-    }));
-  }
+    class CreateSideEffect extends React.Component {
+        static displayName = "CreateSideEffect"
 
-  return React.createClass({
-    mixins: [mixin],
+        componentWillMount() {
+            mountedInstances.add(this);
+            emitChange();
+        }
 
-    statics: {
-      dispose: function () {
-        mountedInstances = [];
-        emitChange();
-      }
-    },
+        shouldComponentUpdate(nextProps) {
+            return !shallowEqual(nextProps, this.props);
+        }
 
-    shouldComponentUpdate: function (nextProps) {
-      return !shallowEqual(nextProps, this.props);
-    },
+        componentDidUpdate() {
+            emitChange();
+        }
 
-    componentWillMount: function () {
-      mountedInstances.push(this);
-      emitChange();
-    },
+        componentWillUnmount() {
+            if (mountedInstances.has(this)) {
+                mountedInstances.delete(this);
+            }
 
-    componentDidUpdate: function () {
-      emitChange();
-    },
+            emitChange();
+        }
 
-    componentWillUnmount: function () {
-      var index = mountedInstances.indexOf(this);
-      mountedInstances.splice(index, 1);
-      emitChange();
-    },
+        static dispose() {
+            mountedInstances.clear();
+            emitChange();
+        }
 
-    render: function () {
-      if (this.props.children) {
-        return React.Children.only(this.props.children);
-      } else {
-        return null;
-      }
+        render() {
+            return (
+                <Component {...this.props} />
+            );
+        }
     }
-  });
-}
 
-module.exports = createSideEffect;
+    Object.getOwnPropertyNames(Component)
+        .filter(componentKey => {
+            return Component.hasOwnProperty(componentKey) && !RESERVED_PROPS[componentKey];
+        })
+        .forEach(componentKey => {
+            CreateSideEffect[componentKey] = Component[componentKey];
+        });
+
+    return CreateSideEffect;
+};
