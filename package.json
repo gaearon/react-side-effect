@@ -1,11 +1,8 @@
 {
   "name": "react-side-effect",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "Create components whose prop changes map to a global side effect",
   "main": "index.js",
-  "peerDependencies": {
-    "react": ">=0.11.0 || >=0.13.0-beta.1"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/gaearon/react-side-effect.git"
@@ -21,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/gaearon/react-side-effect/issues"
   },
-  "homepage": "https://github.com/gaearon/react-side-effect"
+  "homepage": "https://github.com/gaearon/react-side-effect",
+  "dependencies": {
+    "fbjs": "0.1.0-alpha.10"
+  }
 }
