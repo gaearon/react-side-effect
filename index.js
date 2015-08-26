@@ -1,6 +1,6 @@
 import React from "react";
-import invariant from "react/lib/invariant";
-import shallowEqual from "react/lib/shallowEqual";
+import invariant from "fbjs/lib/invariant";
+import shallowEqual from "fbjs/lib/shallowEqual";
 
 const RESERVED_PROPS = {
     arguments: true,
