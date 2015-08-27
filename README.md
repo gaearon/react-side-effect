@@ -1,4 +1,5 @@
 # React Side Effect
+
 Create components whose prop changes map to a global side effect.
 
 ## Installation
@@ -36,90 +37,88 @@ return (
 and let the effect handler merge `style` from different level of nesting with innermost winning:
 
 ```js
-var BodyStyle = createSideEffect(function handleChange(propsList) {
+import { Component, Children, PropTypes } from 'react';
+import withSideEffect from 'react-side-effect';
+
+class BodyStyle extends Component {
+  render() {
+    return Children.only(this.props.children);
+  }
+}
+
+BodyStyle.propTypes = {
+  style: PropTypes.object.isRequired
+};
+
+function reducePropsToState(propsList) {
   var style = {};
   propsList.forEach(function (props) {
     Object.assign(style, props.style);
   });
-  
+  return style;
+}
+
+function handleStateChangeOnClient(style) {
   for (var key in style) {
     document.style[key] = style[key];
   }
-});
+}
+
+export default withSideEffect(
+  reducePropsToState,
+  handleStateChangeOnClient
+)(BodyStyle);
 ```
 
+On the server, you’ll be able to call `BodyStyle.peek()` to get the current state, and `BodyStyle.rewind()` to reset for each next request. The `handleStateChangeOnClient` will only be called on the client.
 
 ## API
 
-#### `createSideEffect: (onChange: Array<Props> -> (), mixin: Object?) -> ReactComponent`
+#### `withSideEffect: (reducePropsToState, handleStateChangeOnClient, [mapStateOnServer]) -> ReactComponent -> ReactComponent`
 
-Returns a component that, when mounting, unmounting or receiving new props, calls `onChange` with `props` of **each mounted instance**.
-It's up to you to `reduce` them, use innermost values, or whatever you fancy.
+A [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) that, when mounting, unmounting or receiving new props, calls `reducePropsToState` with `props` of **each mounted instance**. It is up to you to return some state aggregated from these props.
 
-Component will have a static `dispose()` method to clear the stack of mounted instances.  
-When rendering on server, you must call it after each request.
+On the client, every time the returned component is (un)mounted or its props change, `reducePropsToState` will be called, and the recalculated state will be passed to `handleStateChangeOnClient` where you may use it to trigger a side effect.
 
-You can use optional second `mixin` parameter to specify `propTypes`, `displayName` or `statics`. It will be mixed into the generated component.
+On the server, `handleStateChangeOnClient` will not be called. You will still be able to call the static `rewind()` method on the returned component class to retrieve the current state after a `renderToString()` call. If you forget to call `rewind()` right after `renderToString()`, the internal instance stack will keep growing, resulting in a memory leak and incorrect information. You must call `rewind()` after every `renderToString()` call on the server.
+
+For testing, you may use a static `peek()` method available on the returned component. It lets you get the current state without resetting the mounted instance stack. Don’t use it for anything other than testing.
 
 ## Usage
 
 Here's how to implement [React Document Title](https://github.com/gaearon/react-document-title) (both client and server side) using React Side Effect:
 
 ```js
-'use strict';
+import React, { Children, Component, PropTypes } from 'react';
+import withSideEffect from 'react-side-effect';
 
-var React = require('react'),
-    createSideEffect = require('react-side-effect');
+class DocumentTitle extends Component {
+  render: function render() {
+    if (this.props.children) {
+      return Children.only(this.props.children);
+    } else {
+      return null;
+    }
+  }
+}
 
-/**
- * Extract title from a list of each mounted component's props.
- * We're interested in the innermost title, but for other use cases we might want to call `propList.reduce`.
- */
-function extractTitle(propsList) {
+DocumentTitle.propTypes = {
+  title: PropTypes.string.isRequired
+};
+
+function reducePropsToState(propsList) {
   var innermostProps = propsList[propsList.length - 1];
   if (innermostProps) {
     return innermostProps.title;
   }
 }
 
-var _serverTitle = null;
+function handleStateChangeOnClient(title) {
+  document.title = title || '';
+}
 
-/**
- * Generate a component that reacts to mounting, onmounting and prop changes by updating document title.
- */
-var DocumentTitle = createSideEffect(function handleChange(propsList) {
-  var title = extractTitle(propsList);
-
-  if (typeof document !== 'undefined') {
-    document.title = title || '';
-  } else {
-    _serverTitle = title || null;
-  }
-}, {
-  displayName: 'DocumentTitle',
-
-  propTypes: {
-    title: React.PropTypes.string.isRequired
-  },
-
-  statics: {
-    /**
-     * Peek at current title (for tests).
-     */
-    peek: function () {
-      return _serverTitle;
-    },
-
-    /**
-     * Call this on server after each request to get current title.
-     */
-    rewind: function () {
-      var title = _serverTitle;
-      this.dispose();
-      return title;
-    }
-  }
-});
-
-module.exports = DocumentTitle;
+export default withSideEffect(
+  reducePropsToState,
+  handleStateChangeOnClient
+)(DocumentTitle);
 ```
