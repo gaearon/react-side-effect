@@ -8,6 +8,8 @@ Create components whose prop changes map to a global side effect.
 npm install --save react-side-effect
 ```
 
+Note: React Side Effect requires React 0.13+.
+
 ## Use Cases
 
 * Setting `document.style.overflow` or background color depending on current screen;

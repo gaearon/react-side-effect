@@ -5,7 +5,7 @@ var ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
 var shallowEqual = require('fbjs/lib/shallowEqual');
 var Component = React.Component;
 
-module.exports = function addSideEffect(
+module.exports = function withSideEffect(
   reducePropsToState,
   handleStateChangeOnClient, 
   mapStateOnServer
