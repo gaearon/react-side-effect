@@ -62,6 +62,7 @@ module.exports = function withSideEffect(
 
       var recordedState = state;
       state = undefined;
+      mountedInstances = [];
       return recordedState;
     }
 
