@@ -3,6 +3,11 @@
   "version": "1.0.1",
   "description": "Create components whose prop changes map to a global side effect",
   "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "test:cov": "istanbul cover _mocha"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/gaearon/react-side-effect.git"
@@ -21,5 +26,11 @@
   "homepage": "https://github.com/gaearon/react-side-effect",
   "dependencies": {
     "fbjs": "0.1.0-alpha.10"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "istanbul": "^0.3.19",
+    "mocha": "^2.3.0",
+    "react": "^0.13.3"
   }
 }
