@@ -25,8 +25,29 @@ module.exports = function withSideEffect(
       throw new Error('Expected WrappedComponent to be a React component.');
     }
 
-    function SideEffect() {
-      Component.apply(this, arguments);
+    class SideEffect extends Component {
+      shouldComponentUpdate(nextProps) {
+        return !shallowEqual(nextProps, this.props);
+      }
+
+      componentWillMount() {
+        mountedInstances.push(this);
+        emitChange();
+      }
+
+      componentDidUpdate() {
+        emitChange();
+      }
+
+      componentWillUnmount() {
+        var index = mountedInstances.indexOf(this);
+        mountedInstances.splice(index, 1);
+        emitChange();
+      }
+
+      render() {
+        return React.createElement(WrappedComponent, this.props);
+      }
     }
 
     // Try to use displayName of wrapped component
@@ -65,31 +86,6 @@ module.exports = function withSideEffect(
       mountedInstances = [];
       return recordedState;
     }
-
-    SideEffect.prototype = {
-      shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
-        return !shallowEqual(nextProps, this.props);
-      },
-
-      componentWillMount: function componentWillMount() {
-        mountedInstances.push(this);
-        emitChange();
-      },
-
-      componentDidUpdate: function componentDidUpdate() {
-        emitChange();
-      },
-
-      componentWillUnmount: function componentWillUnmount() {
-        var index = mountedInstances.indexOf(this);
-        mountedInstances.splice(index, 1);
-        emitChange();
-      },
-
-      render: function render() {
-        return React.createElement(WrappedComponent, this.props);
-      }
-    };
 
     return SideEffect;
   }
