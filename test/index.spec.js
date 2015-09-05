@@ -5,6 +5,7 @@ var React = require('react/addons');
 var TestUtils = React.addons.TestUtils;
 var ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
 var withSideEffect = require('..');
+var jsdom = require('jsdom');
 
 function noop() { }
 function identity(arg) { return arg; }
@@ -176,6 +177,42 @@ describe('react-side-effect', function () {
       var markup = React.renderToStaticMarkup(React.createElement(SideEffect, {foo: 'bar'}));
 
       expect(markup).to.equal('<div>hello bar</div>');
+    });
+
+    describe('with DOM', function () {
+      var originalWindow = global.window;
+      var originalDocument = global.document;
+
+      before(function (done) {
+        jsdom.env('<!doctype html><html><head></head><body></body></html>', function (error, window) {
+            if (!error) {
+              global.window = window;
+              global.document = window.document;
+            }
+
+            done(error);
+          }
+        );
+      });
+
+      after(function () {
+        global.window = originalWindow;
+        global.document = originalDocument;
+      });
+
+      it('should be findable by react TestUtils', function () {
+        var AnyComponent = React.createClass({
+          render: function () {
+            return React.createElement(SideEffect, {foo: 'bar'});
+          }
+        });
+
+        var container = TestUtils.renderIntoDocument(React.createElement(AnyComponent));
+        var sideEffect = TestUtils.findRenderedComponentWithType(container, SideEffect);
+
+        expect(sideEffect).to.be.ok;
+        expect(sideEffect).to.have.deep.property('props.foo', 'bar');
+      });
     });
   });
 });
