@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var React = require('react/addons');
 var TestUtils = React.addons.TestUtils;
 var ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
-var withSideEffect = require('..');
+var withSideEffect = require('../src');
 var jsdom = require('jsdom');
 
 function noop() { }
@@ -49,7 +49,7 @@ describe('react-side-effect', function () {
     });
 
     it('should fallback to "Component"', function () {
-      var DummyComponent = React.createClass({render: noop});
+      var DummyComponent = React.createClass({displayName: null, render: noop});
       var SideEffect = withNoopSideEffect(DummyComponent);
 
       expect(SideEffect.displayName).to.equal('SideEffect(Component)');

@@ -2,11 +2,14 @@
   "name": "react-side-effect",
   "version": "1.0.1",
   "description": "Create components whose prop changes map to a global side effect",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
+    "build": "babel src --out-dir lib",
+    "clean": "rimraf lib",
+    "prepublish": "npm test && npm run clean && npm run build",
     "test": "mocha",
     "test:watch": "mocha --watch",
-    "test:cov": "istanbul cover _mocha"
+    "test:cov": "babel-node ./node_modules/.bin/isparta cover ./node_modules/.bin/_mocha"
   },
   "repository": {
     "type": "git",
@@ -28,10 +31,17 @@
     "fbjs": "0.1.0-alpha.10"
   },
   "devDependencies": {
+    "babel": "^5.8.23",
     "chai": "^3.2.0",
-    "istanbul": "^0.3.19",
+    "isparta": "^3.0.4",
     "jsdom": "^6.3.0",
     "mocha": "^2.3.0",
-    "react": "^0.13.3"
-  }
+    "react": "^0.13.3",
+    "rimraf": "^2.4.3"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "lib/"
+  ]
 }
