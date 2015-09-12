@@ -1,9 +1,6 @@
-'use strict';
-
-var React = require('react');
-var ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
-var shallowEqual = require('fbjs/lib/shallowEqual');
-var Component = React.Component;
+import React, { Component } from 'react';
+import ExecutionEnvironment from 'fbjs/lib/ExecutionEnvironment';
+import shallowEqual from 'fbjs/lib/shallowEqual';
 
 module.exports = function withSideEffect(
   reducePropsToState,
@@ -20,12 +17,52 @@ module.exports = function withSideEffect(
    throw new Error('Expected mapStateOnServer to either be undefined or a function.'); 
   }
 
+  function getDisplayName(WrappedComponent) {
+    return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  }
+
   return function wrap(WrappedComponent) {
     if (typeof WrappedComponent !== 'function') {
       throw new Error('Expected WrappedComponent to be a React component.');
     }
 
+    let mountedInstances = [];
+    let state;
+
+    function emitChange() {
+      state = reducePropsToState(mountedInstances.map(function (instance) {
+        return instance.props;
+      }));
+
+      if (SideEffect.canUseDOM) {
+        handleStateChangeOnClient(state);
+      } else if (mapStateOnServer) {
+        state = mapStateOnServer(state);
+      }
+    }
+
     class SideEffect extends Component {
+      // Try to use displayName of wrapped component
+      static displayName = `SideEffect(${getDisplayName(WrappedComponent)})`;
+
+      // Expose canUseDOM so tests can monkeypatch it
+      static canUseDOM = ExecutionEnvironment.canUseDOM;
+
+      static peek() {
+        return state;
+      }
+
+      static rewind() {
+        if (SideEffect.canUseDOM) {
+          throw new Error('You may ony call rewind() on the server. Call peek() to read the current state.');
+        }
+
+        let recordedState = state;
+        state = undefined;
+        mountedInstances = [];
+        return recordedState;
+      }
+
       shouldComponentUpdate(nextProps) {
         return !shallowEqual(nextProps, this.props);
       }
@@ -40,51 +77,14 @@ module.exports = function withSideEffect(
       }
 
       componentWillUnmount() {
-        var index = mountedInstances.indexOf(this);
+        const index = mountedInstances.indexOf(this);
         mountedInstances.splice(index, 1);
         emitChange();
       }
 
       render() {
-        return React.createElement(WrappedComponent, this.props);
+        return <WrappedComponent {...this.props} />;
       }
-    }
-
-    // Try to use displayName of wrapped component
-    var wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
-    SideEffect.displayName = 'SideEffect(' + wrappedDisplayName + ')';
-
-    // Expose canUseDOM so tests can monkeypatch it
-    SideEffect.canUseDOM = ExecutionEnvironment.canUseDOM;
-
-    var mountedInstances = [];
-    var state;
-
-    function emitChange() {
-      state = reducePropsToState(mountedInstances.map(function (instance) {
-        return instance.props;
-      }));
-
-      if (SideEffect.canUseDOM) {
-        handleStateChangeOnClient(state);
-      } else if (mapStateOnServer) {
-        state = mapStateOnServer(state);
-      }
-    }
-
-    SideEffect.peek = function peek() {
-      return state;
-    };
-
-    SideEffect.rewind = function rewind() {
-      if (SideEffect.canUseDOM) {
-        throw new Error('You may ony call rewind() on the server. Call peek() to read the current state.');
-      }
-
-      var recordedState = state;
-      state = undefined;
-      mountedInstances = [];
-      return recordedState;
     }
 
     return SideEffect;
