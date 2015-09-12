@@ -170,7 +170,6 @@ describe('react-side-effect', function () {
       var state = SideEffect.peek();
 
       expect(state).to.deep.equal([{foo: 'bar'}, {something: 'different'}]);
-
     });
 
     it('should render the wrapped component', function () {
@@ -185,14 +184,13 @@ describe('react-side-effect', function () {
 
       before(function (done) {
         jsdom.env('<!doctype html><html><head></head><body></body></html>', function (error, window) {
-            if (!error) {
-              global.window = window;
-              global.document = window.document;
-            }
-
-            done(error);
+          if (!error) {
+            global.window = window;
+            global.document = window.document;
           }
-        );
+
+          done(error);
+        });
       });
 
       after(function () {
