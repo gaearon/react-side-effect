@@ -79,7 +79,7 @@ describe('react-side-effect', function () {
       it('should throw if used in the browser', function () {
         SideEffect.canUseDOM = true;
 
-        expect(SideEffect.rewind).to.throw('You may ony call rewind() on the server. Call peek() to read the current state.');
+        expect(SideEffect.rewind).to.throw('You may only call rewind() on the server. Call peek() to read the current state.');
       });
 
       it('should return the current state', function () {

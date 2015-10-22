@@ -54,7 +54,7 @@ module.exports = function withSideEffect(
 
       static rewind() {
         if (SideEffect.canUseDOM) {
-          throw new Error('You may ony call rewind() on the server. Call peek() to read the current state.');
+          throw new Error('You may only call rewind() on the server. Call peek() to read the current state.');
         }
 
         let recordedState = state;
