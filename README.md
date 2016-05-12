@@ -12,7 +12,7 @@ Note: React Side Effect requires React 0.13+.
 
 ## Use Cases
 
-* Setting `document.style.overflow` or background color depending on current screen;
+* Setting `document.body.style.margin` or background color depending on current screen;
 * Firing Flux actions using declarative API depending on current screen;
 * Some crazy stuff I haven't thought about.
 
@@ -62,7 +62,7 @@ function reducePropsToState(propsList) {
 
 function handleStateChangeOnClient(style) {
   for (var key in style) {
-    document.style[key] = style[key];
+    document.body.style[key] = style[key];
   }
 }
 
