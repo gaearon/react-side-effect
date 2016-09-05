@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/gaearon/react-side-effect",
   "dependencies": {
-    "fbjs": "0.1.0-alpha.10"
+    "exenv": "^1.2.1",
+    "shallowequal": "^0.2.2"
   },
   "devDependencies": {
     "babel": "^5.8.23",

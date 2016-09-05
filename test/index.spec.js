@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var React = require('react/addons');
 var TestUtils = React.addons.TestUtils;
-var ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
+var ExecutionEnvironment = require('exenv');
 var withSideEffect = require('../src');
 var jsdom = require('jsdom');
 
@@ -210,6 +210,30 @@ describe('react-side-effect', function () {
 
         expect(sideEffect).to.be.ok;
         expect(sideEffect).to.have.deep.property('props.foo', 'bar');
+      });
+
+      it('should only recompute when component updates', function () {
+        var collectCount = 0;
+
+        function handleStateChangeOnClient(state) {
+          collectCount += 1;
+        }
+
+        SideEffect = withSideEffect(identity, handleStateChangeOnClient)(DummyComponent);
+
+        SideEffect.canUseDOM = true;
+
+        var node = document.createElement('div');
+        document.body.appendChild(node);
+
+        React.render(React.createElement(SideEffect, {text: 'bar'}), node);
+        expect(collectCount).to.equal(1);
+        React.render(React.createElement(SideEffect, {text: 'bar'}), node);
+        expect(collectCount).to.equal(1);
+        React.render(React.createElement(SideEffect, {text: 'baz'}), node);
+        expect(collectCount).to.equal(2);
+        React.render(React.createElement(SideEffect, {text: 'baz'}), node);
+        expect(collectCount).to.equal(2);
       });
     });
   });
