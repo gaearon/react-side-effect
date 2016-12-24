@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import ExecutionEnvironment from 'fbjs/lib/ExecutionEnvironment';
-import shallowEqual from 'fbjs/lib/shallowEqual';
+import ExecutionEnvironment from 'exenv';
+import shallowEqual from 'shallowequal';
 
 module.exports = function withSideEffect(
   reducePropsToState,
-  handleStateChangeOnClient, 
+  handleStateChangeOnClient,
   mapStateOnServer
 ) {
   if (typeof reducePropsToState !== 'function') {
@@ -14,7 +14,7 @@ module.exports = function withSideEffect(
     throw new Error('Expected handleStateChangeOnClient to be a function.');
   }
   if (typeof mapStateOnServer !== 'undefined' && typeof mapStateOnServer !== 'function') {
-   throw new Error('Expected mapStateOnServer to either be undefined or a function.'); 
+   throw new Error('Expected mapStateOnServer to either be undefined or a function.');
   }
 
   function getDisplayName(WrappedComponent) {
