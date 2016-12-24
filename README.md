@@ -95,7 +95,7 @@ import React, { Children, Component, PropTypes } from 'react';
 import withSideEffect from 'react-side-effect';
 
 class DocumentTitle extends Component {
-  render: function render() {
+  render() {
     if (this.props.children) {
       return Children.only(this.props.children);
     } else {
