@@ -12,7 +12,7 @@ Note: React Side Effect requires React 0.13+.
 
 ## Use Cases
 
-* Setting `document.style.overflow` or background color depending on current screen;
+* Setting `document.body.style.margin` or background color depending on current screen;
 * Firing Flux actions using declarative API depending on current screen;
 * Some crazy stuff I haven't thought about.
 
@@ -93,7 +93,7 @@ import React, { Children, Component, PropTypes } from 'react';
 import withSideEffect from 'react-side-effect';
 
 class DocumentTitle extends Component {
-  render: function render() {
+  render() {
     if (this.props.children) {
       return Children.only(this.props.children);
     } else {
