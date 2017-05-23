@@ -32,7 +32,7 @@
   ],
   "dependencies": {
     "exenv": "^1.2.1",
-    "shallowequal": "^0.2.2"
+    "shallowequal": "^1.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
