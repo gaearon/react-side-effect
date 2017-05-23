@@ -1,4 +1,4 @@
-# React Side Effect
+# React Side Effect [![Downloads](https://img.shields.io/npm/dm/react-side-effect.svg)](https://npmjs.com/react-side-effect) [![npm version](https://img.shields.io/npm/v/react-side-effect.svg?style=flat)](https://www.npmjs.com/package/react-side-effect)
 
 Create components whose prop changes map to a global side effect.
 
