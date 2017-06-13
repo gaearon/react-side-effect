@@ -39,7 +39,8 @@ return (
 and let the effect handler merge `style` from different level of nesting with innermost winning:
 
 ```js
-import { Component, Children, PropTypes } from 'react';
+import { Component, Children } from 'react';
+import PropTypes from 'prop-types';
 import withSideEffect from 'react-side-effect';
 
 class BodyStyle extends Component {
