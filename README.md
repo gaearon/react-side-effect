@@ -39,7 +39,8 @@ return (
 and let the effect handler merge `style` from different level of nesting with innermost winning:
 
 ```js
-import { Component, Children, PropTypes } from 'react';
+import { Component, Children } from 'react';
+import PropTypes from 'prop-types';
 import withSideEffect from 'react-side-effect';
 
 class BodyStyle extends Component {
@@ -89,7 +90,8 @@ For testing, you may use a static `peek()` method available on the returned comp
 Here's how to implement [React Document Title](https://github.com/gaearon/react-document-title) (both client and server side) using React Side Effect:
 
 ```js
-import React, { Children, Component, PropTypes } from 'react';
+import React, { Children, Component } from 'react';
+import PropTypes from 'prop-types';
 import withSideEffect from 'react-side-effect';
 
 class DocumentTitle extends Component {
