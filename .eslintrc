@@ -21,6 +21,12 @@
   },
   "rules": {
     "valid-jsdoc": 2,
+    "no-unused-vars": [
+      2,
+      {
+        "ignoreRestSiblings": true
+      }
+    ],
     "react/jsx-uses-react": 1,
     "react/jsx-no-undef": 2,
     "react/jsx-wrap-multilines": 2,

@@ -2,3 +2,4 @@ node_modules
 coverage
 lib
 .tern-port
+.nyc_output/

@@ -1,14 +1,27 @@
-# React Side Effect [![Downloads](https://img.shields.io/npm/dm/react-side-effect.svg)](https://npmjs.com/react-side-effect) [![npm version](https://img.shields.io/npm/v/react-side-effect.svg?style=flat)](https://www.npmjs.com/package/react-side-effect)
+# React Reffect
 
-Create components whose prop changes map to a global side effect.
+[![Downloads](https://img.shields.io/npm/dm/react-reffect.svg)](https://npmjs.com/react-reffect)
+[![npm version](https://img.shields.io/npm/v/react-reffect.svg?style=flat)](https://www.npmjs.com/package/react-reffect)
+
+Create components whose prop changes map to a global side effect with the power of redux and new Context API.
+
+!! This is a fork of [react-side-effect](https://github.com/gaearon/react-side-effect), thanks to [Dan Abramov](http://github.com/gaearon) for the awesome work!
+
+## Different from react-side-effect and the motivation of this project
+
+When you use react-side-effect on server, you must call `rewind()` after every `renderToString()`, otherwise it will result a memory leak and incorrect results. However `renderToString()` is so heavy and [blocks the node.js event loop](https://medium.com/@markuretsky/asynchronous-react-server-side-rendering-813a934a1ad1).
+
+React 16 supports Streaming to resolve this problem. You can use `renderTo(Static)NodeStream` instead of `renderToString()` and `renderToStaticMarkup`. Since it is an asynchronous api, thr non-thread-safe `react-side-effect` and `rewind()` will be broken and cause incorrect result.
+
+This library use redux and [React 16.4 new context API](https://medium.com/dailyjs/reacts-%EF%B8%8F-new-context-api-70c9fe01596b) (use react-create-context as a polyfill) to help you create a context for each request and prevent memory leak, so that you can use it safely both on server side and client side.
 
 ## Installation
 
 ```
-npm install --save react-side-effect
+npm install --save react-reffect
 ```
 
-Note: React Side Effect requires React 0.13+.
+Note: React Reffect requires React 15.3+.
 
 ## Use Cases
 
@@ -22,26 +35,31 @@ It gathers current props across *the whole tree* before passing them to side eff
 
 ```js
 // RootComponent.js
+import BodyStyle from './BodyStyle';
+const store = BodyStyle.createStore();
 return (
-  <BodyStyle style={{ backgroundColor: 'red' }}>
-    {this.state.something ? <SomeComponent /> : <OtherComponent />}
-  </BodyStyle>
+  <BodyStyle.Provider store={store}>
+    <BodyStyle.Consumer style={{ backgroundColor: 'red' }}>
+      {this.state.something ? <SomeComponent /> : <OtherComponent />}
+    </BodyStyle.Consumer>
+  </BodyStyle.Provider>
 );
 
 // SomeComponent.js
 return (
-  <BodyStyle style={{ backgroundColor: this.state.color }}>
+  <BodyStyle.Consumer style={{ backgroundColor: this.state.color }}>
     <div>Choose color: <input valueLink={this.linkState('color')} /></div>
-  </BodyStyle>
+  </BodyStyle.Consumer>
 );
 ```
 
 and let the effect handler merge `style` from different level of nesting with innermost winning:
 
 ```js
+// BodyStyle.js
 import { Component, Children } from 'react';
 import PropTypes from 'prop-types';
-import withSideEffect from 'react-side-effect';
+import createSideEffect from 'react-reffect';
 
 class BodyStyle extends Component {
   render() {
@@ -65,34 +83,99 @@ function handleStateChangeOnClient(style) {
   Object.assign(document.body.style, style);
 }
 
-export default withSideEffect(
+export default createSideEffect(
   reducePropsToState,
   handleStateChangeOnClient
 )(BodyStyle);
 ```
 
-On the server, you’ll be able to call `BodyStyle.peek()` to get the current state, and `BodyStyle.rewind()` to reset for each next request. The `handleStateChangeOnClient` will only be called on the client.
+On the server, you’ll be able to call `store.peek()` to get the current state. The `handleStateChangeOnClient` will only be called on the client.
+
+## Migrate from react-side-effect
+
+### 1. Change withSideEffect to createSideEffect and use { Consumer } instead of original result. Remove `mapStateOnServer`.
+
+``` js
+const BodyStyle = withSideEffect(
+  reducePropsToState,
+  handleStateChangeOnClient
+)(BodyStyle);
+
+export default BodyStyle;
+```
+
+to
+
+``` js
+const { Provider, Consumer, createStore } = withSideEffect(
+  reducePropsToState,
+  handleStateChangeOnClient
+)(BodyStyle);
+
+export default Consumer;
+export const BodyStyleProvider = Provider;
+export const createBodyStyleStore = createStore;
+```
+
+### 2. Wrap root component with `Provider`
+
+``` js
+const App = (
+  <MyRootComponent />
+);
+```
+
+to
+
+``` js
+const App = (
+  <BodyStyleProvider>
+    <MyRootComponent />
+  </BodyStyleProvider>
+);
+```
+
+### 3. Create a store both on server side and client side and use it with `Provider`. Make sure create a store for each request on server side.
+
+``` js
+const store = createBodyStyleStore();
+const App = (
+  <BodyStyleProvider store={store}>
+    <MyRootComponent />
+  </BodyStyleProvider>
+);
+```
+
+### 4. Migrate `mapStateOnServer` and `rewind()`
+
+``` js
+const result = BodyStyle.rewind()
+```
+
+to
+
+``` js
+const result = mapStateOnServer(store.peek());
+```
 
 ## API
 
-#### `withSideEffect: (reducePropsToState, handleStateChangeOnClient, [mapStateOnServer]) -> ReactComponent -> ReactComponent`
+#### `createSideEffect: (reducePropsToState, handleStateChangeOnClient, [options]) -> ReactComponent -> {Provider, Consumer, createStore}
 
-A [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750) that, when mounting, unmounting or receiving new props, calls `reducePropsToState` with `props` of **each mounted instance**. It is up to you to return some state aggregated from these props.
+A helper to create Provider, Consumer and createStore. When mounting, unmounting or receiving new props on Consumer, calls `reducePropsToState` with `props` of **each mounted instance**. It is up to you to return some state aggregated from these props.
 
 On the client, every time the returned component is (un)mounted or its props change, `reducePropsToState` will be called, and the recalculated state will be passed to `handleStateChangeOnClient` where you may use it to trigger a side effect.
 
-On the server, `handleStateChangeOnClient` will not be called. You will still be able to call the static `rewind()` method on the returned component class to retrieve the current state after a `renderToString()` call. If you forget to call `rewind()` right after `renderToString()`, the internal instance stack will keep growing, resulting in a memory leak and incorrect information. You must call `rewind()` after every `renderToString()` call on the server.
-
-For testing, you may use a static `peek()` method available on the returned component. It lets you get the current state without resetting the mounted instance stack. Don’t use it for anything other than testing.
+On the server, `handleStateChangeOnClient` will not be called. You will still be able to call the static `peek()` method on the returned component class to retrieve the current state after a `renderToString()` call. Make sure to create a new store for each request, otherwise it will result in a memory leak and incorrect information. 
 
 ## Usage
 
-Here's how to implement [React Document Title](https://github.com/gaearon/react-document-title) (both client and server side) using React Side Effect:
+Here's how to implement [React Document Title](https://github.com/gaearon/react-document-title) (both client and server side) using React Reffect:
 
 ```js
 import React, { Children, Component } from 'react';
 import PropTypes from 'prop-types';
-import withSideEffect from 'react-side-effect';
+import createSideEffect from 'react-reffect';
 
 class DocumentTitle extends Component {
   render() {
@@ -119,8 +202,16 @@ function handleStateChangeOnClient(title) {
   document.title = title || '';
 }
 
-export default withSideEffect(
+const SideEffect = createSideEffect(
   reducePropsToState,
   handleStateChangeOnClient
 )(DocumentTitle);
+
+export const createDocumentTitleStore = SideEffect.createStore;
+export const DocumentTitleProvider = SideEffect.Provider;
+export default SideEffect.Consumer;
 ```
+
+## LICENSE
+
+MIT
