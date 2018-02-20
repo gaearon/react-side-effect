@@ -1,6 +1,5 @@
 import React from "react";
 import { createStore, applyMiddleware } from "redux";
-import ExecutionEnvironment from "exenv";
 import createReactContext from "create-react-context";
 
 import rootReducer from "./modules";
@@ -11,11 +10,8 @@ const createContext = React.createContext || createReactContext;
 
 export default function createSideEffect(
   reducePropsToState,
-  handleStateChangeOnClient,
-  options
+  handleStateChangeOnClient
 ) {
-  options = options || {};
-
   if (typeof reducePropsToState !== "function") {
     throw new Error("Expected reducePropsToState to be a function.");
   }
@@ -23,29 +19,21 @@ export default function createSideEffect(
     throw new Error("Expected handleStateChangeOnClient to be a function.");
   }
 
-  if (typeof options !== "object") {
-    throw new Error("Expected options to be an object.");
-  }
-
-  const canUseDOM = options.canUseDOM || ExecutionEnvironment.canUseDOM;
-
-  const handleStateChangeOnClientEnhancer = applyMiddleware(
-    ({ getState }) => next => action => {
-      const prevState = getState();
-      const result = next(action);
-      const nextState = getState();
-      if (prevState !== nextState) {
-        const state = reducePropsToState(nextState.propsList);
-        handleStateChangeOnClient(state);
-      }
-      return result;
+  const createStoreBase = applyMiddleware(({ getState }) => next => action => {
+    if (!action.meta.canUseDOM) {
+      return next(action);
     }
-  );
+    const prevState = getState();
+    const result = next(action);
+    const nextState = getState();
+    if (prevState !== nextState) {
+      const state = reducePropsToState(nextState.propsList);
+      handleStateChangeOnClient(state);
+    }
+    return result;
+  })(createStore);
 
   function createSideEffectStore(preloadedState, enhancer) {
-    const createStoreBase = canUseDOM
-      ? handleStateChangeOnClientEnhancer(createStore)
-      : createStore;
     const store = createStoreBase(rootReducer, preloadedState, enhancer);
     return {
       ...store,

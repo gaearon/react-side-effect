@@ -160,7 +160,7 @@ const result = mapStateOnServer(store.peek());
 
 ## API
 
-#### `createSideEffect: (reducePropsToState, handleStateChangeOnClient, [options]) -> ReactComponent -> {Provider, Consumer, createStore}
+#### `createSideEffect: (reducePropsToState, handleStateChangeOnClient) -> ReactComponent -> {Provider, Consumer, createStore}
 
 A helper to create Provider, Consumer and createStore. When mounting, unmounting or receiving new props on Consumer, calls `reducePropsToState` with `props` of **each mounted instance**. It is up to you to return some state aggregated from these props.
 

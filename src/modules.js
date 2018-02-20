@@ -1,21 +1,27 @@
 export const ADD_PROPS = "effect/ADD";
 export const REMOVE_PROPS = "effect/REMOVE";
 
-export function addProps(instance, props) {
+export function addProps(instance, props, canUseDOM) {
   return {
     type: ADD_PROPS,
     payload: {
       instance,
       props
+    },
+    meta: {
+      canUseDOM
     }
   };
 }
 
-export function removeProps(instance) {
+export function removeProps(instance, canUseDOM) {
   return {
     type: REMOVE_PROPS,
     payload: {
       instance
+    },
+    meta: {
+      canUseDOM
     }
   };
 }

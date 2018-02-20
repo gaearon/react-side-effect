@@ -1,58 +1,43 @@
 import React from "react";
-import PropTypes from "prop-types";
+import hoistNonReactStatics from "hoist-non-react-statics";
+import ExecutionEnvironment from "exenv";
 
 import { addProps, removeProps } from "./modules";
 import getDisplayName from "./getDisplayName";
 
-const storeShape = PropTypes.shape({
-  subscribe: PropTypes.func.isRequired,
-  dispatch: PropTypes.func.isRequired,
-  getState: PropTypes.func.isRequired
-}).isRequired;
-
 export default function createConsumer(SideEffectContext, WrappedComponent) {
-  class SideEffect extends React.PureComponent {
-    static displayName = `SideEffect(${getDisplayName(WrappedComponent)})`;
-
-    static propTypes = {
-      store: storeShape
-    };
-
+  class SideEffectConsumer extends React.PureComponent {
     constructor(props) {
       super(props);
+      this.renderWithStore = this.renderWithStore.bind(this);
     }
 
-    componentWillMount() {
-      if (this.props.store) {
-        const { store, ...restProps } = this.props;
-        this.props.store.dispatch(addProps(this, restProps));
+    renderWithStore(store) {
+      this.store = store;
+      if (this.store) {
+        this.store.dispatch(
+          addProps(this, this.props, SideEffectConsumer.canUseDOM)
+        );
       }
-    }
-
-    componentDidUpdate() {
-      if (this.props.store) {
-        const { store, ...restProps } = this.props;
-        this.props.store.dispatch(addProps(this, restProps));
-      }
+      return <WrappedComponent {...this.props} />;
     }
 
     componentWillUnmount() {
-      if (this.props.store) {
-        this.props.store.dispatch(removeProps(this));
+      if (this.store) {
+        this.store.dispatch(removeProps(this, SideEffectConsumer.canUseDOM));
       }
     }
 
     render() {
-      const { store, ...restProps } = this.props;
-      return <WrappedComponent {...restProps} />;
+      return (
+        <SideEffectContext.Consumer>
+          {this.renderWithStore}
+        </SideEffectContext.Consumer>
+      );
     }
   }
-
-  const SideEffectConsumer = props => (
-    <SideEffectContext.Consumer>
-      {store => <SideEffect {...props} store={store} />}
-    </SideEffectContext.Consumer>
-  );
+  hoistNonReactStatics(SideEffectConsumer, WrappedComponent);
+  SideEffectConsumer.canUseDOM = ExecutionEnvironment.canUseDOM;
   SideEffectConsumer.displayName = `SideEffectConsumer(${getDisplayName(
     WrappedComponent
   )})`;

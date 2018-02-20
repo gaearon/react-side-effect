@@ -27,12 +27,6 @@ describe("react-reffect", () => {
       );
     });
 
-    it("should throw if options is not an object", () => {
-      expect(createSideEffect.bind(null, noop, noop, noop, noop)).to.throw(
-        "Expected options to be an object."
-      );
-    });
-
     it("should throw if no WrappedComponent is provided", () => {
       expect(createSideEffect(noop, noop)).to.throw(
         "Expected WrappedComponent to be a React component"
@@ -151,11 +145,11 @@ describe("react-reffect", () => {
         const handleStateChangeOnClient = state =>
           (sideEffectCollectedData = state);
 
-        SideEffect = createSideEffect(identity, handleStateChangeOnClient, {
-          canUseDOM: true
-        })(DummyComponent);
+        SideEffect = createSideEffect(identity, handleStateChangeOnClient)(
+          DummyComponent
+        );
         const store = SideEffect.createStore();
-
+        SideEffect.Consumer.canUseDOM = true;
         render(
           <SideEffect.Provider store={store}>
             <SideEffect.Consumer foo="bar" />
@@ -238,9 +232,10 @@ describe("react-reffect", () => {
           latestState = state;
         }
 
-        SideEffect = createSideEffect(identity, handleStateChangeOnClient, {
-          canUseDOM: true
-        })(DummyComponent);
+        SideEffect = createSideEffect(identity, handleStateChangeOnClient)(
+          DummyComponent
+        );
+        SideEffect.Consumer.canUseDOM = true;
 
         const node = document.createElement("div");
         document.body.appendChild(node);
