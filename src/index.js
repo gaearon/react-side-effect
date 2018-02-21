@@ -68,8 +68,17 @@ module.exports = function withSideEffect(
       }
 
       componentWillMount() {
-        mountedInstances.push(this);
-        emitChange();
+        if (!SideEffect.canUseDOM) {
+          mountedInstances.push(this);
+          emitChange();
+        }
+      }
+
+      componentDidMount() {
+        if (SideEffect.canUseDOM) {
+          mountedInstances.unshift(this);
+          emitChange();
+        }
       }
 
       componentDidUpdate() {

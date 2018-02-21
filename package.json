@@ -42,13 +42,15 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-register": "^6.18.0",
     "chai": "^3.2.0",
-    "enzyme": "^2.7.0",
+    "create-react-class": "^15.6.3",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "isparta": "^4.0.0",
     "jsdom": "^9.9.1",
     "mocha": "^3.2.0",
-    "react": "^15.4.2",
+    "react": "^16.2.0",
     "react-addons-test-utils": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "react-dom": "^16.2.0",
     "rimraf": "^2.4.3"
   },
   "files": [

@@ -1,3 +1,4 @@
+const createClass = require('create-react-class');
 const { expect } = require('chai');
 const React = require('react');
 const ExecutionEnvironment = require('exenv');
@@ -5,6 +6,10 @@ const jsdom = require('jsdom');
 const { shallow, mount } = require('enzyme')
 const { renderToStaticMarkup } = require('react-dom/server')
 const { render } = require('react-dom')
+
+const Enzyme = require('enzyme');
+const EnzymeAdapter = require('enzyme-adapter-react-16');
+Enzyme.configure({ adapter: new EnzymeAdapter() });
 
 const withSideEffect = require('../src');
 
@@ -34,7 +39,7 @@ describe('react-side-effect', () => {
     const withNoopSideEffect = withSideEffect(noop, noop);
 
     it('should wrap the displayName of wrapped createClass component', () => {
-      const DummyComponent = React.createClass({displayName: 'Dummy', render: noop});
+      const DummyComponent = createClass({displayName: 'Dummy', render: noop});
       const SideEffect = withNoopSideEffect(DummyComponent);
 
       expect(SideEffect.displayName).to.equal('SideEffect(Dummy)');
@@ -59,7 +64,7 @@ describe('react-side-effect', () => {
     });
 
     it('should fallback to "Component"', () => {
-      const DummyComponent = React.createClass({displayName: null, render: noop});
+      const DummyComponent = createClass({displayName: null, render: noop});
       const SideEffect = withNoopSideEffect(DummyComponent);
 
       expect(SideEffect.displayName).to.equal('SideEffect(Component)');
@@ -230,6 +235,88 @@ describe('react-side-effect', () => {
         expect(collectCount).to.equal(2);
         render(<SideEffect text="baz" />, node);
         expect(collectCount).to.equal(2);
+      });
+
+      describe('nesting', () => {
+        let documentTitle = null;
+        let TestComponent = null;
+        let TestErrorComponent = null;
+        let mountNode = null;
+
+        before(() => {
+          function reducePropsToState(propsList) {
+            var innermostProps = propsList[propsList.length - 1];
+            if (innermostProps) {
+              return innermostProps.title;
+            }
+          }
+
+          function handleStateChangeOnClient(title) {
+            documentTitle = title || '';
+          }
+
+          TestComponent = withSideEffect(
+            reducePropsToState,
+            handleStateChangeOnClient
+          )(props => {
+            if (props.error) {
+              throw Error('TestErrorComponent');
+            } else {
+              return props.children || null;
+            }
+          });
+          TestComponent.canUseDOM = true;
+
+          mountNode = document.createElement('div');
+          document.body.appendChild(mountNode);
+        });
+
+        after(() => {
+          documentTitle = null;
+
+          document.body.removeChild(mountNode);
+        });
+
+        it('should support nested components', () => {
+          render(
+            <TestComponent title="outer">
+              <TestComponent title="inner" />
+            </TestComponent>,
+            mountNode,
+          );
+
+          expect(documentTitle).to.equal('inner');
+        });
+
+        it('should cleanup mounting instances after errors', () => {
+          class ErrorBoundary extends React.Component {
+            state = {};
+            componentDidCatch(error) {
+              error.suppressReactErrorLogging = true;
+              this.setState({error})
+            }
+            render() {
+              if (this.state.error) {
+                return null;
+              } else {
+                return this.props.children || null;
+              }
+            }
+          }
+
+          render(
+            <TestComponent title="outer">
+              <TestComponent title="middle">
+                <ErrorBoundary>
+                  <TestComponent title="inner" error="true" />
+                </ErrorBoundary>
+              </TestComponent>
+            </TestComponent>,
+            mountNode,
+          );
+
+          expect(documentTitle).to.equal('middle');
+        });
       });
     });
   });
