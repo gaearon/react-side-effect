@@ -1,7 +1,11 @@
 {
   "presets": [
     "react",
-    ["es2015", { "loose": true }],
-    "stage-2"
+    ["env", { "targets": {"node": "current"}, "loose": true }]
+  ],
+  "plugins": [
+    "transform-object-rest-spread",
+    "transform-class-properties",
+    "add-module-exports"
   ]
 }

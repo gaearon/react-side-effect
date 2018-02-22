@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ExecutionEnvironment from 'exenv';
 import shallowEqual from 'shallowequal';
 
-module.exports = function withSideEffect(
+export default function withSideEffect(
   reducePropsToState,
   handleStateChangeOnClient,
   mapStateOnServer
