@@ -20,9 +20,10 @@ const exec = (command, extraEnv) =>
 const formats = [
   { format: 'cjs', file: `${filebase}.js`, description: 'CJS module' },
   { format: 'es', file: `${filebase}.es.js`, description: 'ES module' },
+  { format: 'umd', file: `${filebase}.umd.js`, description: 'UMD module' },
   {
     format: 'umd',
-    file: `${filebase}.min.js`,
+    file: `${filebase}.umd.min.js`,
     description: 'minified UMD module',
     env: {
       BUILD_ENV: 'production',
