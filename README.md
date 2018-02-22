@@ -8,7 +8,21 @@ Create components whose prop changes map to a global side effect.
 npm install --save react-side-effect
 ```
 
-Note: React Side Effect requires React 0.13+.
+### As a script tag
+
+#### Development
+
+```
+<script src="https://unpkg.com/react/umd/react.development.js" type="text/javascript"></script>
+<script src="https://unpkg.com/react-side-effect/lib/index.umd.js" type="text/javascript"></script>
+```
+
+#### Production
+
+```
+<script src="https://unpkg.com/react/umd/react.production.min.js" type="text/javascript"></script>
+<script src="https://unpkg.com/react-side-effect/lib/index.umd.min.js" type="text/javascript"></script>
+```
 
 ## Use Cases
 
