@@ -1,7 +1,10 @@
 {
   "presets": [
     "react",
-    ["env", { "targets": {"uglify": true}, "loose": true }],
-    "stage-2"
+    ["env", { "targets": {"uglify": true}, "loose": true }]
+  ],
+  "plugins": [
+    "transform-object-rest-spread",
+    "transform-class-properties"
   ]
 }
