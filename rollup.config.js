@@ -16,8 +16,14 @@ const config = {
   plugins: [
     babel({
       babelrc: false,
-      presets: ['react', ['env', { loose: true, modules: false }]],
-      plugins: ['transform-object-rest-spread', 'transform-class-properties'],
+      presets: [
+        '@babel/preset-react',
+        ['@babel/preset-env', { loose: true, modules: false }],
+      ],
+      plugins: [
+        '@babel/plugin-proposal-object-rest-spread',
+        '@babel/plugin-proposal-class-properties',
+      ],
       exclude: 'node_modules/**',
     }),
   ],

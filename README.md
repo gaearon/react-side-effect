@@ -12,14 +12,14 @@ npm install --save react-side-effect
 
 #### Development
 
-```
+```html
 <script src="https://unpkg.com/react/umd/react.development.js" type="text/javascript"></script>
 <script src="https://unpkg.com/react-side-effect/lib/index.umd.js" type="text/javascript"></script>
 ```
 
 #### Production
 
-```
+```html
 <script src="https://unpkg.com/react/umd/react.production.min.js" type="text/javascript"></script>
 <script src="https://unpkg.com/react-side-effect/lib/index.umd.min.js" type="text/javascript"></script>
 ```
