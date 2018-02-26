@@ -1,6 +1,6 @@
 {
   "name": "react-reffect",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Create components whose prop changes map to a global side effect with the power of redux and new Context API",
   "main": "lib/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kouhin/react-reffect.git"
+    "url": "https://github.com/openameba/react-reffect.git"
   },
   "keywords": [
     "react",
