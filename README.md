@@ -13,7 +13,7 @@ When you use react-side-effect on server, you must call `rewind()` after every `
 
 React 16 supports Streaming to resolve this problem. You can use `renderTo(Static)NodeStream` instead of `renderToString()` and `renderToStaticMarkup`. Since it is an asynchronous api, thr non-thread-safe `react-side-effect` and `rewind()` will be broken and cause incorrect result.
 
-This library use redux and [React 16.4 new context API](https://medium.com/dailyjs/reacts-%EF%B8%8F-new-context-api-70c9fe01596b) (use react-broadcast as a polyfill) to help you create a context for each request and prevent memory leak, so that you can use it safely both on server side and client side.
+This library use redux and [React 16.3 new context API](https://medium.com/dailyjs/reacts-%EF%B8%8F-new-context-api-70c9fe01596b) (use react-broadcast as a polyfill) to help you create a context for each request and prevent memory leak, so that you can use it safely both on server side and client side.
 
 ## Installation
 
