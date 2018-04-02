@@ -39,9 +39,9 @@
     "Louis DeScioli <louis.descioli@gmail.com>"
   ],
   "dependencies": {
-    "create-react-context": "^0.1.6",
     "exenv": "^1.2.2",
     "hoist-non-react-statics": "^2.5.0",
+    "react-broadcast": "^0.7.0",
     "redux": "^3.7.2"
   },
   "devDependencies": {
