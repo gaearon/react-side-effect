@@ -1,6 +1,6 @@
 import React from "react";
 import { createStore, applyMiddleware } from "redux";
-import createReactContext from "create-react-context";
+import { createContext as createReactContext } from "react-broadcast";
 
 import rootReducer from "./modules";
 import createProvider from "./createProvider";
