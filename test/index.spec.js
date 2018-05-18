@@ -1,195 +1,203 @@
-const { expect } = require('chai');
-const React = require('react');
-const ExecutionEnvironment = require('exenv');
-const jsdom = require('jsdom');
-const { shallow, mount } = require('enzyme')
-const { renderToStaticMarkup } = require('react-dom/server')
-const { render } = require('react-dom')
+import { expect } from "chai";
+import React from "react";
+import PropTypes from "prop-types";
+import { JSDOM } from "jsdom";
+import { renderToStaticMarkup } from "react-dom/server";
+import ReactDOM from "react-dom";
+import TestRenderer from "react-test-renderer";
 
-const withSideEffect = require('../src');
+import createSideEffect from "../src";
 
-function noop() { }
-const identity = x => x
+function noop() {}
+const identity = x => x;
 
-describe('react-side-effect', () => {
-  describe('argument validation', () => {
-    it('should throw if no reducePropsState function is provided', () => {
-      expect(withSideEffect).to.throw('Expected reducePropsToState to be a function.');
+describe("react-reffect", () => {
+  describe("argument validation", () => {
+    it("should throw if no reducePropsState function is provided", () => {
+      expect(createSideEffect).to.throw(
+        "Expected reducePropsToState to be a function."
+      );
     });
 
-    it('should throw if no handleStateChangeOnClient function is provided', () => {
-      expect(withSideEffect.bind(null, noop)).to.throw('Expected handleStateChangeOnClient to be a function.');
+    it("should throw if no handleStateChangeOnClient function is provided", () => {
+      expect(createSideEffect.bind(null, noop)).to.throw(
+        "Expected handleStateChangeOnClient to be a function."
+      );
     });
 
-    it('should throw if mapStateOnServer is defined but not a function', () => {
-      expect(withSideEffect.bind(null, noop, noop, 'foo')).to.throw('Expected mapStateOnServer to either be undefined or a function.');
-    });
-
-    it('should throw if no WrappedComponent is provided', () => {
-      expect(withSideEffect(noop, noop)).to.throw('Expected WrappedComponent to be a React component');
+    it("should throw if no WrappedComponent is provided", () => {
+      expect(createSideEffect(noop, noop)).to.throw(
+        "Expected WrappedComponent to be a React component"
+      );
     });
   });
 
-  describe('displayName', () => {
-    const withNoopSideEffect = withSideEffect(noop, noop);
+  describe("displayName", () => {
+    const createNoopSideEffect = createSideEffect(noop, noop);
 
-    it('should wrap the displayName of wrapped createClass component', () => {
-      const DummyComponent = React.createClass({displayName: 'Dummy', render: noop});
-      const SideEffect = withNoopSideEffect(DummyComponent);
-
-      expect(SideEffect.displayName).to.equal('SideEffect(Dummy)');
-    });
-
-    it('should wrap the displayName of wrapped ES2015 class component', () => {
+    it("[Provider] should wrap the displayName of wrapped ES2015 class component", () => {
       class DummyComponent extends React.Component {
-        static displayName = 'Dummy'
-        render() {}
+        static displayName = "Dummy";
+        render() {
+          return null;
+        }
       }
-      const SideEffect = withNoopSideEffect(DummyComponent);
+      const { Provider } = createNoopSideEffect(DummyComponent);
 
-      expect(SideEffect.displayName).to.equal('SideEffect(Dummy)');
+      expect(Provider.displayName).to.equal("SideEffectProvider(Dummy)");
     });
 
-    it('should use the constructor name of the wrapped functional component', () => {
+    it("[Provider] should use the constructor name of the wrapped functional component", () => {
       function DummyComponent() {}
 
-      const SideEffect = withNoopSideEffect(DummyComponent);
+      const { Provider } = createNoopSideEffect(DummyComponent);
 
-      expect(SideEffect.displayName).to.equal('SideEffect(DummyComponent)');
+      expect(Provider.displayName).to.equal(
+        "SideEffectProvider(DummyComponent)"
+      );
     });
 
-    it('should fallback to "Component"', () => {
-      const DummyComponent = React.createClass({displayName: null, render: noop});
-      const SideEffect = withNoopSideEffect(DummyComponent);
+    it('[Provider] should fallback to "Component"', () => {
+      const { Provider } = createNoopSideEffect(() => null);
 
-      expect(SideEffect.displayName).to.equal('SideEffect(Component)');
+      expect(Provider.displayName).to.equal("SideEffectProvider(Component)");
+    });
+
+    it("[Consumer] should wrap the displayName of wrapped ES2015 class component", () => {
+      class DummyComponent extends React.Component {
+        static displayName = "Dummy";
+        render() {
+          return null;
+        }
+      }
+      const { Consumer } = createNoopSideEffect(DummyComponent);
+
+      expect(Consumer.displayName).to.equal("SideEffectConsumer(Dummy)");
+    });
+
+    it("[Consumer] should use the constructor name of the wrapped functional component", () => {
+      function DummyComponent() {}
+
+      const { Consumer } = createNoopSideEffect(DummyComponent);
+
+      expect(Consumer.displayName).to.equal(
+        "SideEffectConsumer(DummyComponent)"
+      );
+    });
+
+    it('[Consumer] should fallback to "Component"', () => {
+      const { Consumer } = createNoopSideEffect(() => null);
+
+      expect(Consumer.displayName).to.equal("SideEffectConsumer(Component)");
     });
   });
 
-  describe('SideEffect component', () => {
+  describe("SideEffect component", () => {
     class DummyComponent extends React.Component {
-      render () {
-        return <div>hello {this.props.foo}</div>
-      }
-    };
+      static propTypes = {
+        foo: PropTypes.string
+      };
 
-    const withIdentitySideEffect = withSideEffect(identity, noop);
+      render() {
+        return <div>hello {this.props.foo}</div>;
+      }
+    }
+
+    const withIdentitySideEffect = createSideEffect(identity, noop);
     let SideEffect;
 
     beforeEach(() => {
       SideEffect = withIdentitySideEffect(DummyComponent);
     });
 
-    it('should expose the canUseDOM flag', () => {
-      expect(SideEffect).to.have.property('canUseDOM', ExecutionEnvironment.canUseDOM);
-    });
-
-    describe('rewind', () => {
-      it('should throw if used in the browser', () => {
-        SideEffect.canUseDOM = true;
-        expect(SideEffect.rewind).to.throw('You may only call rewind() on the server. Call peek() to read the current state.');
+    describe("peek", () => {
+      it("should return the current state", () => {
+        const store = SideEffect.createStore();
+        renderToStaticMarkup(
+          <SideEffect.Provider store={store}>
+            <SideEffect.Consumer foo="bar" />
+          </SideEffect.Provider>
+        );
+        expect(store.peek()).to.deep.equal([{ foo: "bar" }]);
       });
 
-      it('should return the current state', () => {
-        shallow(<SideEffect foo="bar"/>);
-        const state = SideEffect.rewind();
-        expect(state).to.deep.equal([{foo: 'bar'}]);
-      });
+      it("should NOT reset the state", () => {
+        const store = SideEffect.createStore();
+        renderToStaticMarkup(
+          <SideEffect.Provider store={store}>
+            <SideEffect.Consumer foo="bar" />
+          </SideEffect.Provider>
+        );
 
-      it('should reset the state', () => {
-        shallow(<SideEffect foo="bar"/>);
-        SideEffect.rewind();
-        const state = SideEffect.rewind();
-        expect(state).to.equal(undefined);
-      });
-    });
+        store.peek();
+        const state = store.peek();
 
-    describe('peek', () => {
-      it('should return the current state', () => {
-        shallow(<SideEffect foo="bar"/>);
-        expect(SideEffect.peek()).to.deep.equal([{foo: 'bar'}]);
-      });
-
-      it('should NOT reset the state', () => {
-        shallow(<SideEffect foo="bar"/>);
-
-        SideEffect.peek();
-        const state = SideEffect.peek();
-
-        expect(state).to.deep.equal([{foo: 'bar'}]);
+        expect(state).to.deep.equal([{ foo: "bar" }]);
       });
     });
 
-    describe('handleStateChangeOnClient', () => {
-      it('should execute handleStateChangeOnClient', () => {
+    describe("handleStateChangeOnClient", () => {
+      it("should execute handleStateChangeOnClient", () => {
         let sideEffectCollectedData;
 
-        const handleStateChangeOnClient = state => (sideEffectCollectedData = state)
+        const handleStateChangeOnClient = state =>
+          (sideEffectCollectedData = state);
 
-        SideEffect = withSideEffect(identity, handleStateChangeOnClient)(DummyComponent);
+        SideEffect = createSideEffect(identity, handleStateChangeOnClient)(
+          DummyComponent
+        );
+        const store = SideEffect.createStore();
+        SideEffect.Consumer.canUseDOM = true;
+        renderToStaticMarkup(
+          <SideEffect.Provider store={store}>
+            <SideEffect.Consumer foo="bar" />
+          </SideEffect.Provider>
+        );
 
-        SideEffect.canUseDOM = true;
-
-        shallow(<SideEffect foo="bar"/>);
-
-        expect(sideEffectCollectedData).to.deep.equal([{foo: 'bar'}]);
+        expect(sideEffectCollectedData).to.deep.equal([{ foo: "bar" }]);
       });
     });
 
-    describe('mapStateOnServer', () => {
-      it('should apply a custom mapStateOnServer function', () => {
-        const mapStateOnServer = ([ prop ]) => prop
+    it("should collect props from all instances", () => {
+      const store = SideEffect.createStore();
 
-        SideEffect = withSideEffect(identity, noop, mapStateOnServer)(DummyComponent);
+      renderToStaticMarkup(
+        <SideEffect.Provider store={store}>
+          <SideEffect.Consumer foo="bar" />
+        </SideEffect.Provider>
+      );
+      renderToStaticMarkup(
+        <SideEffect.Provider store={store}>
+          <SideEffect.Consumer something="different" />
+        </SideEffect.Provider>
+      );
 
-        SideEffect.canUseDOM = false;
+      const state = store.peek();
 
-        shallow(<SideEffect foo="bar"/>);
-
-        let state = SideEffect.rewind();
-
-        expect(state).not.to.be.an('Array');
-        expect(state).to.deep.equal({foo: 'bar'});
-
-        SideEffect.canUseDOM = true;
-
-        shallow(<SideEffect foo="bar"/>);
-
-        state = SideEffect.peek();
-
-        expect(state).to.an('Array');
-        expect(state).to.deep.equal([{foo: 'bar'}]);
-      });
+      expect(state).to.deep.equal([{ foo: "bar" }, { something: "different" }]);
     });
 
-    it('should collect props from all instances', () => {
-      shallow(<SideEffect foo="bar"/>);
-      shallow(<SideEffect something="different"/>);
+    it("should render the wrapped component", () => {
+      const store = SideEffect.createStore();
+      const markup = renderToStaticMarkup(
+        <SideEffect.Provider store={store}>
+          <SideEffect.Consumer foo="bar" />
+        </SideEffect.Provider>
+      );
 
-      const state = SideEffect.peek();
-
-      expect(state).to.deep.equal([{foo: 'bar'}, {something: 'different'}]);
+      expect(markup).to.equal("<div>hello bar</div>");
     });
 
-    it('should render the wrapped component', () => {
-      const markup = renderToStaticMarkup(<SideEffect foo="bar"/>);
-
-      expect(markup).to.equal('<div>hello bar</div>');
-    });
-
-    describe('with DOM', () => {
+    describe("with DOM", () => {
       const originalWindow = global.window;
       const originalDocument = global.document;
 
-      before(done => {
-        jsdom.env('<!doctype html><html><head></head><body></body></html>', (error, window) => {
-          if (!error) {
-            global.window = window;
-            global.document = window.document;
-          }
-
-          done(error);
-        });
+      before(() => {
+        const dom = new JSDOM(
+          "<!doctype html><html><head></head><body></body></html>"
+        );
+        global.window = dom.window;
+        global.document = global.window.document;
       });
 
       after(() => {
@@ -197,39 +205,122 @@ describe('react-side-effect', () => {
         global.document = originalDocument;
       });
 
-      it('should be findable by react TestUtils', () => {
+      it("should be findable by react TestUtils", () => {
         class AnyComponent extends React.Component {
           render() {
-            return <SideEffect foo="bar" />
+            return <SideEffect.Consumer foo="bar" />;
           }
         }
-        const wrapper = shallow(<AnyComponent />);
-        const sideEffect = wrapper.find(SideEffect)
-        expect(sideEffect.props()).to.deep.equal({ foo: 'bar' });
+        const store = SideEffect.createStore();
+        const testRenderer = TestRenderer.create(
+          <SideEffect.Provider store={store}>
+            <AnyComponent />
+          </SideEffect.Provider>
+        );
+        const testInstance = testRenderer.root;
+        const sideEffect = testInstance.findByType(SideEffect.Consumer);
+        expect(sideEffect.props).to.deep.equal({ foo: "bar" });
+        testRenderer.unmount();
       });
 
-      it('should only recompute when component updates', () => {
+      it("should only recompute when component updates", () => {
         let collectCount = 0;
 
+        let latestState;
         function handleStateChangeOnClient(state) {
           collectCount += 1;
+          latestState = state;
         }
 
-        SideEffect = withSideEffect(identity, handleStateChangeOnClient)(DummyComponent);
+        SideEffect = createSideEffect(identity, handleStateChangeOnClient)(
+          DummyComponent
+        );
+        SideEffect.Consumer.canUseDOM = true;
 
-        SideEffect.canUseDOM = true;
-
-        const node = document.createElement('div');
+        const node = document.createElement("div");
         document.body.appendChild(node);
+        const node2 = document.createElement("div");
+        document.body.appendChild(node2);
 
-        render(<SideEffect text="bar" />, node);
+        const store = SideEffect.createStore();
+
+        ReactDOM.render(
+          <SideEffect.Provider store={store}>
+            <SideEffect.Consumer text="bar" />
+          </SideEffect.Provider>,
+          node
+        );
         expect(collectCount).to.equal(1);
-        render(<SideEffect text="bar" />, node);
+        expect(store.getState().mountedInstances.length).to.equal(1);
+        expect(store.getState().propsList).to.deep.equal([
+          {
+            text: "bar"
+          }
+        ]);
+        expect(latestState).to.deep.equal(store.getState().propsList);
+
+        // Do nothing
+        ReactDOM.render(
+          <SideEffect.Provider store={store}>
+            <SideEffect.Consumer text="bar" />
+          </SideEffect.Provider>,
+          node
+        );
         expect(collectCount).to.equal(1);
-        render(<SideEffect text="baz" />, node);
+        expect(store.getState().mountedInstances.length).to.equal(1);
+        expect(store.getState().propsList).to.deep.equal([
+          {
+            text: "bar"
+          }
+        ]);
+        expect(latestState).to.deep.equal(store.getState().propsList);
+
+        // Change props
+        ReactDOM.render(
+          <SideEffect.Provider store={store}>
+            <SideEffect.Consumer text="baz" />
+          </SideEffect.Provider>,
+          node
+        );
         expect(collectCount).to.equal(2);
-        render(<SideEffect text="baz" />, node);
-        expect(collectCount).to.equal(2);
+        expect(store.getState().mountedInstances.length).to.equal(1);
+        expect(store.getState().propsList).to.deep.equal([
+          {
+            text: "baz"
+          }
+        ]);
+        expect(latestState).to.deep.equal(store.getState().propsList);
+
+        // Mount new node
+        ReactDOM.render(
+          <SideEffect.Provider store={store}>
+            <SideEffect.Consumer text="foo" />
+          </SideEffect.Provider>,
+          node2
+        );
+        expect(collectCount).to.equal(3);
+        expect(store.getState().mountedInstances.length).to.equal(2);
+        expect(store.getState().propsList).to.deep.equal([
+          {
+            text: "baz"
+          },
+          {
+            text: "foo"
+          }
+        ]);
+        expect(latestState).to.deep.equal(store.getState().propsList);
+
+        // Unmount node2
+        ReactDOM.unmountComponentAtNode(node2);
+
+        expect(collectCount).to.equal(4);
+        expect(store.getState().mountedInstances.length).to.equal(1);
+        expect(store.getState().propsList).to.deep.equal([
+          {
+            text: "baz"
+          }
+        ]);
+        expect(latestState).to.deep.equal(store.getState().propsList);
       });
     });
   });

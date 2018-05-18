@@ -1,11 +1,26 @@
 {
   "presets": [
-    "react",
-    ["env", { "targets": {"node": "current"}, "loose": true }]
+    "@babel/react",
+    [
+      "@babel/preset-env",
+      {
+        "loose": true,
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    [
+      "@babel/preset-stage-2",
+      {
+        "loose": true,
+        "decoratorsLegacy": true
+      }
+    ]
   ],
   "plugins": [
-    "transform-object-rest-spread",
-    "transform-class-properties",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-proposal-class-properties",
     "add-module-exports"
   ]
 }
