@@ -23,6 +23,22 @@ npm install --save react-reffect
 
 Note: React Reffect requires React 15.3+.
 
+### As a script tag
+
+#### Development
+
+```
+<script src="https://unpkg.com/react/umd/react.development.js" type="text/javascript"></script>
+<script src="https://unpkg.com/react-reffect/lib/index.umd.js" type="text/javascript"></script>
+```
+
+#### Production
+
+```
+<script src="https://unpkg.com/react/umd/react.production.min.js" type="text/javascript"></script>
+<script src="https://unpkg.com/react-reffect/lib/index.umd.min.js" type="text/javascript"></script>
+```
+
 ## Use Cases
 
 * Setting `document.body.style.margin` or background color depending on current screen;

@@ -1,15 +1,13 @@
 import { expect } from "chai";
 import React from "react";
 import PropTypes from "prop-types";
-import Enzyme, { render, mount } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
 import { JSDOM } from "jsdom";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReactDOM from "react-dom";
+import TestRenderer from "react-test-renderer";
 
 import createSideEffect from "../src";
 
-Enzyme.configure({ adapter: new Adapter() });
 function noop() {}
 const identity = x => x;
 
@@ -115,7 +113,7 @@ describe("react-reffect", () => {
     describe("peek", () => {
       it("should return the current state", () => {
         const store = SideEffect.createStore();
-        render(
+        renderToStaticMarkup(
           <SideEffect.Provider store={store}>
             <SideEffect.Consumer foo="bar" />
           </SideEffect.Provider>
@@ -125,7 +123,7 @@ describe("react-reffect", () => {
 
       it("should NOT reset the state", () => {
         const store = SideEffect.createStore();
-        render(
+        renderToStaticMarkup(
           <SideEffect.Provider store={store}>
             <SideEffect.Consumer foo="bar" />
           </SideEffect.Provider>
@@ -150,7 +148,7 @@ describe("react-reffect", () => {
         );
         const store = SideEffect.createStore();
         SideEffect.Consumer.canUseDOM = true;
-        render(
+        renderToStaticMarkup(
           <SideEffect.Provider store={store}>
             <SideEffect.Consumer foo="bar" />
           </SideEffect.Provider>
@@ -163,12 +161,12 @@ describe("react-reffect", () => {
     it("should collect props from all instances", () => {
       const store = SideEffect.createStore();
 
-      render(
+      renderToStaticMarkup(
         <SideEffect.Provider store={store}>
           <SideEffect.Consumer foo="bar" />
         </SideEffect.Provider>
       );
-      render(
+      renderToStaticMarkup(
         <SideEffect.Provider store={store}>
           <SideEffect.Consumer something="different" />
         </SideEffect.Provider>
@@ -214,13 +212,15 @@ describe("react-reffect", () => {
           }
         }
         const store = SideEffect.createStore();
-        const wrapper = mount(
+        const testRenderer = TestRenderer.create(
           <SideEffect.Provider store={store}>
             <AnyComponent />
           </SideEffect.Provider>
         );
-        const sideEffect = wrapper.find(SideEffect.Consumer);
-        expect(sideEffect.props()).to.deep.equal({ foo: "bar" });
+        const testInstance = testRenderer.root;
+        const sideEffect = testInstance.findByType(SideEffect.Consumer);
+        expect(sideEffect.props).to.deep.equal({ foo: "bar" });
+        testRenderer.unmount();
       });
 
       it("should only recompute when component updates", () => {
