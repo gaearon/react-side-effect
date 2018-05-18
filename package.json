@@ -1,6 +1,6 @@
 {
   "name": "react-reffect",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Create components whose prop changes map to a global side effect with the power of redux and new Context API",
   "main": "lib/index.js",
   "scripts": {
@@ -55,6 +55,7 @@
     "chai": "^4.1.2",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme-context-patch": "^0.0.7",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.10.0",
