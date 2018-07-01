@@ -21,7 +21,7 @@ const config = {
       exclude: 'node_modules/**',
     }),
   ],
-  external: ['shallowequal', 'react', 'exenv'],
+  external: ['shallowequal', 'react'],
 }
 
 if (BUILD_FORMAT === 'umd') {
