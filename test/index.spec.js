@@ -2,14 +2,18 @@ const { expect } = require('chai');
 const React = require('react');
 const ExecutionEnvironment = require('exenv');
 const jsdom = require('jsdom');
-const { shallow, mount } = require('enzyme')
+const { shallow, configure } = require('enzyme')
+const Adapter = require('enzyme-adapter-react-16');
 const { renderToStaticMarkup } = require('react-dom/server')
 const { render } = require('react-dom')
+const createClass = require('create-react-class')
 
 const withSideEffect = require('../src');
 
 function noop() { }
 const identity = x => x
+
+configure({ adapter: new Adapter() })
 
 describe('react-side-effect', () => {
   describe('argument validation', () => {
@@ -34,7 +38,7 @@ describe('react-side-effect', () => {
     const withNoopSideEffect = withSideEffect(noop, noop);
 
     it('should wrap the displayName of wrapped createClass component', () => {
-      const DummyComponent = React.createClass({displayName: 'Dummy', render: noop});
+      const DummyComponent = createClass({displayName: 'Dummy', render: noop});
       const SideEffect = withNoopSideEffect(DummyComponent);
 
       expect(SideEffect.displayName).to.equal('SideEffect(Dummy)');
@@ -59,7 +63,7 @@ describe('react-side-effect', () => {
     });
 
     it('should fallback to "Component"', () => {
-      const DummyComponent = React.createClass({displayName: null, render: noop});
+      const DummyComponent = createClass({displayName: null, render: noop});
       const SideEffect = withNoopSideEffect(DummyComponent);
 
       expect(SideEffect.displayName).to.equal('SideEffect(Component)');
