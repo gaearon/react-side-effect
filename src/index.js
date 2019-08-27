@@ -67,7 +67,7 @@ export default function withSideEffect(
         return !shallowEqual(nextProps, this.props);
       }
 
-      componentWillMount() {
+      UNSAFE_componentWillMount() {
         mountedInstances.push(this);
         emitChange();
       }
