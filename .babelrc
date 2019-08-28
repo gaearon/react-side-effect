@@ -1,11 +1,19 @@
 {
   "presets": [
-    "react",
-    ["env", { "targets": {"node": "current"}, "loose": true }]
+    "@babel/preset-react",
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        },
+        "loose": true
+      }
+    ]
   ],
   "plugins": [
-    "transform-object-rest-spread",
-    "transform-class-properties",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-proposal-class-properties",
     "add-module-exports"
   ]
 }

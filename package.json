@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/gaearon/react-side-effect",
   "contributors": [
-    "Louis DeScioli <louis.descioli@gmail.com>"
+    "Louis DeScioli (https://descioli.design)"
   ],
   "peerDependencies": {
     "react": "^0.13.0 || ^0.14.0 || ^15.0.0 || ^16.0.0"
@@ -38,14 +38,15 @@
     "shallowequal": "^1.0.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.21.0",
+    "@babel/cli": "7.0.0",
+    "@babel/core": "7.0.0",
+    "@babel/node": "7.0.0",
+    "@babel/plugin-proposal-class-properties": "7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "7.0.0",
+    "@babel/preset-env": "7.0.0",
+    "@babel/preset-react": "7.0.0",
+    "@babel/register": "7.0.0",
     "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-react": "^6.16.0",
-    "babel-register": "^6.18.0",
     "chai": "^3.2.0",
     "enzyme": "^2.7.0",
     "gzip-size": "^4.1.0",
@@ -57,8 +58,8 @@
     "react-addons-test-utils": "^15.4.2",
     "react-dom": "^15.4.2",
     "rimraf": "^2.4.3",
-    "rollup": "^0.56.2",
-    "rollup-plugin-babel": "^3.0.2",
+    "rollup": "^1.20.3",
+    "rollup-plugin-babel": "^4.0.0",
     "rollup-plugin-commonjs": "^8.3.0",
     "rollup-plugin-node-resolve": "^3.0.3",
     "rollup-plugin-uglify": "^3.0.0"
