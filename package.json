@@ -34,7 +34,6 @@
     "react": "^0.13.0 || ^0.14.0 || ^15.0.0 || ^16.0.0"
   },
   "dependencies": {
-    "exenv": "^1.2.1",
     "shallowequal": "^1.0.1"
   },
   "devDependencies": {
