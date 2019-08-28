@@ -1,12 +1,16 @@
 const { expect } = require('chai');
 const React = require('react');
+const createReactClass = require('create-react-class');
 const ExecutionEnvironment = require('exenv');
 const jsdom = require('jsdom');
-const { shallow, mount } = require('enzyme')
+const enzyme = require('enzyme');
+const Adapter = require('enzyme-adapter-react-16');
 const { renderToStaticMarkup } = require('react-dom/server')
 const { render } = require('react-dom')
 
 const withSideEffect = require('../src');
+
+enzyme.configure({ adapter: new Adapter() });
 
 function noop() { }
 const identity = x => x
@@ -34,7 +38,7 @@ describe('react-side-effect', () => {
     const withNoopSideEffect = withSideEffect(noop, noop);
 
     it('should wrap the displayName of wrapped createClass component', () => {
-      const DummyComponent = React.createClass({displayName: 'Dummy', render: noop});
+      const DummyComponent = createReactClass({displayName: 'Dummy', render: noop});
       const SideEffect = withNoopSideEffect(DummyComponent);
 
       expect(SideEffect.displayName).to.equal('SideEffect(Dummy)');
@@ -59,7 +63,7 @@ describe('react-side-effect', () => {
     });
 
     it('should fallback to "Component"', () => {
-      const DummyComponent = React.createClass({displayName: null, render: noop});
+      const DummyComponent = createReactClass({displayName: null, render: noop});
       const SideEffect = withNoopSideEffect(DummyComponent);
 
       expect(SideEffect.displayName).to.equal('SideEffect(Component)');
@@ -91,13 +95,13 @@ describe('react-side-effect', () => {
       });
 
       it('should return the current state', () => {
-        shallow(<SideEffect foo="bar"/>);
+        enzyme.shallow(<SideEffect foo="bar"/>);
         const state = SideEffect.rewind();
         expect(state).to.deep.equal([{foo: 'bar'}]);
       });
 
       it('should reset the state', () => {
-        shallow(<SideEffect foo="bar"/>);
+        enzyme.shallow(<SideEffect foo="bar"/>);
         SideEffect.rewind();
         const state = SideEffect.rewind();
         expect(state).to.equal(undefined);
@@ -106,12 +110,12 @@ describe('react-side-effect', () => {
 
     describe('peek', () => {
       it('should return the current state', () => {
-        shallow(<SideEffect foo="bar"/>);
+        enzyme.shallow(<SideEffect foo="bar"/>);
         expect(SideEffect.peek()).to.deep.equal([{foo: 'bar'}]);
       });
 
       it('should NOT reset the state', () => {
-        shallow(<SideEffect foo="bar"/>);
+        enzyme.shallow(<SideEffect foo="bar"/>);
 
         SideEffect.peek();
         const state = SideEffect.peek();
@@ -130,7 +134,7 @@ describe('react-side-effect', () => {
 
         SideEffect.canUseDOM = true;
 
-        shallow(<SideEffect foo="bar"/>);
+        enzyme.shallow(<SideEffect foo="bar"/>);
 
         expect(sideEffectCollectedData).to.deep.equal([{foo: 'bar'}]);
       });
@@ -144,7 +148,7 @@ describe('react-side-effect', () => {
 
         SideEffect.canUseDOM = false;
 
-        shallow(<SideEffect foo="bar"/>);
+        enzyme.shallow(<SideEffect foo="bar"/>);
 
         let state = SideEffect.rewind();
 
@@ -153,7 +157,7 @@ describe('react-side-effect', () => {
 
         SideEffect.canUseDOM = true;
 
-        shallow(<SideEffect foo="bar"/>);
+        enzyme.shallow(<SideEffect foo="bar"/>);
 
         state = SideEffect.peek();
 
@@ -163,8 +167,8 @@ describe('react-side-effect', () => {
     });
 
     it('should collect props from all instances', () => {
-      shallow(<SideEffect foo="bar"/>);
-      shallow(<SideEffect something="different"/>);
+      enzyme.shallow(<SideEffect foo="bar"/>);
+      enzyme.shallow(<SideEffect something="different"/>);
 
       const state = SideEffect.peek();
 
@@ -203,7 +207,7 @@ describe('react-side-effect', () => {
             return <SideEffect foo="bar" />
           }
         }
-        const wrapper = shallow(<AnyComponent />);
+        const wrapper = enzyme.shallow(<AnyComponent />);
         const sideEffect = wrapper.find(SideEffect)
         expect(sideEffect.props()).to.deep.equal({ foo: 'bar' });
       });
