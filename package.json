@@ -31,7 +31,7 @@
     "Louis DeScioli (https://descioli.design)"
   ],
   "peerDependencies": {
-    "react": "^0.13.0 || ^0.14.0 || ^15.0.0 || ^16.0.0"
+    "react": "^16.9.0"
   },
   "dependencies": {
     "shallowequal": "^1.0.1"
@@ -47,15 +47,16 @@
     "@babel/register": "7.0.0",
     "babel-plugin-add-module-exports": "^0.2.1",
     "chai": "^3.2.0",
-    "enzyme": "^2.7.0",
+    "create-react-class": "^15.6.3",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
     "gzip-size": "^4.1.0",
     "isparta": "^4.0.0",
     "jsdom": "^9.9.1",
     "mocha": "^3.2.0",
     "pretty-bytes": "^4.0.2",
-    "react": "^15.4.2",
-    "react-addons-test-utils": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "rimraf": "^2.4.3",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.0.0",
