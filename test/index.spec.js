@@ -1,7 +1,6 @@
 const { expect } = require('chai');
 const React = require('react');
 const createReactClass = require('create-react-class');
-const ExecutionEnvironment = require('exenv');
 const jsdom = require('jsdom');
 const enzyme = require('enzyme');
 const Adapter = require('enzyme-adapter-react-16');
@@ -85,7 +84,7 @@ describe('react-side-effect', () => {
     });
 
     it('should expose the canUseDOM flag', () => {
-      expect(SideEffect).to.have.property('canUseDOM', ExecutionEnvironment.canUseDOM);
+      expect(SideEffect).to.have.property('canUseDOM');
     });
 
     describe('rewind', () => {

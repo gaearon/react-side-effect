@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
-import ExecutionEnvironment from 'exenv';
 import shallowEqual from 'shallowequal';
+
+const canUseDOM = !!(
+  typeof window !== 'undefined' &&
+  window.document &&
+  window.document.createElement
+);
 
 export default function withSideEffect(
   reducePropsToState,
@@ -46,7 +51,7 @@ export default function withSideEffect(
       static displayName = `SideEffect(${getDisplayName(WrappedComponent)})`;
 
       // Expose canUseDOM so tests can monkeypatch it
-      static canUseDOM = ExecutionEnvironment.canUseDOM;
+      static canUseDOM = canUseDOM;
 
       static peek() {
         return state;
