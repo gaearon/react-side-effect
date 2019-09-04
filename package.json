@@ -33,9 +33,7 @@
   "peerDependencies": {
     "react": "^16.9.0"
   },
-  "dependencies": {
-    "shallowequal": "^1.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/cli": "7.0.0",
     "@babel/core": "7.0.0",

@@ -27,13 +27,10 @@ const config = {
       exclude: 'node_modules/**',
     }),
   ],
-  external: ['shallowequal', 'react'],
+  external: ['react'],
 }
 
 if (BUILD_FORMAT === 'umd') {
-  // In the browser build, include our smaller dependencies
-  // so users only need to include React
-  config.external = ['react']
   config.plugins.push(
     resolve(),
     commonjs({
