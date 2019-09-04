@@ -45,7 +45,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.5.5",
-    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-add-module-exports": "^1.0.2",
     "chai": "^3.2.0",
     "create-react-class": "^15.6.3",
     "enzyme": "^3.10.0",
