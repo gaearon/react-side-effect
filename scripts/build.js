@@ -33,10 +33,7 @@ const formats = [
 
 for (const { format, file, description, env } of formats) {
   console.log(`Building ${description}...`)
-  exec(`rollup -c -f ${format} -o ${file}`, {
-    BUILD_FORMAT: format,
-    ...env,
-  })
+  exec(`rollup -c -f ${format} -o ${file}`, env)
 }
 
 for (const { file, description } of formats) {

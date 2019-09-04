@@ -1,9 +1,7 @@
 import babel from 'rollup-plugin-babel'
 import uglify from 'rollup-plugin-uglify'
-import resolve from 'rollup-plugin-node-resolve'
-import commonjs from 'rollup-plugin-commonjs'
 
-const { BUILD_ENV, BUILD_FORMAT } = process.env
+const { BUILD_ENV } = process.env
 
 const config = {
   input: 'src/index.js',
@@ -28,15 +26,6 @@ const config = {
     }),
   ],
   external: ['react'],
-}
-
-if (BUILD_FORMAT === 'umd') {
-  config.plugins.push(
-    resolve(),
-    commonjs({
-      include: /node_modules/,
-    }),
-  )
 }
 
 if (BUILD_ENV === 'production') {

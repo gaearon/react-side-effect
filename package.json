@@ -58,8 +58,6 @@
     "rimraf": "^2.4.3",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.0.0",
-    "rollup-plugin-commonjs": "^8.3.0",
-    "rollup-plugin-node-resolve": "^3.0.3",
     "rollup-plugin-uglify": "^3.0.0"
   },
   "files": [
