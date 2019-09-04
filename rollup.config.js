@@ -21,7 +21,6 @@ const config = {
         ['@babel/preset-env', { loose: true, modules: false }],
       ],
       plugins: [
-        '@babel/plugin-proposal-object-rest-spread',
         '@babel/plugin-proposal-class-properties',
       ],
       exclude: 'node_modules/**',
