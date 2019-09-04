@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import shallowEqual from 'shallowequal';
+import React, { PureComponent } from 'react';
 
 const canUseDOM = !!(
   typeof window !== 'undefined' &&
@@ -46,7 +45,7 @@ export default function withSideEffect(
       }
     }
 
-    class SideEffect extends Component {
+    class SideEffect extends PureComponent {
       // Try to use displayName of wrapped component
       static displayName = `SideEffect(${getDisplayName(WrappedComponent)})`;
 
@@ -66,10 +65,6 @@ export default function withSideEffect(
         state = undefined;
         mountedInstances = [];
         return recordedState;
-      }
-
-      shouldComponentUpdate(nextProps) {
-        return !shallowEqual(nextProps, this.props);
       }
 
       UNSAFE_componentWillMount() {
