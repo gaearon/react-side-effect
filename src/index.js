@@ -67,7 +67,8 @@ export default function withSideEffect(
         return recordedState;
       }
 
-      UNSAFE_componentWillMount() {
+      constructor(props, context) {
+        super(props, context);
         mountedInstances.push(this);
         emitChange();
       }
