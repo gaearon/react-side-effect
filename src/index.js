@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useLayoutEffect } from 'react';
 
 const canUseDOM = !!(
   typeof window !== 'undefined' &&
@@ -45,48 +45,38 @@ export default function withSideEffect(
       }
     }
 
-    class SideEffect extends PureComponent {
-      // Try to use displayName of wrapped component
-      static displayName = `SideEffect(${getDisplayName(WrappedComponent)})`;
-
-      // Expose canUseDOM so tests can monkeypatch it
-      static canUseDOM = canUseDOM;
-
-      static peek() {
-        return state;
-      }
-
-      static rewind() {
-        if (SideEffect.canUseDOM) {
-          throw new Error('You may only call rewind() on the server. Call peek() to read the current state.');
-        }
-
-        let recordedState = state;
-        state = undefined;
-        mountedInstances = [];
-        return recordedState;
-      }
-
-      UNSAFE_componentWillMount() {
-        mountedInstances.push(this);
+    const SideEffect = ({ ...props }) => {
+      useLayoutEffect(() => {
+        const instance = <SideEffect {...props} />;
+        mountedInstances.push(instance);
         emitChange();
+
+        return () => {
+          const index = mountedInstances.indexOf(instance);
+          mountedInstances.splice(index, 1);
+          emitChange();
+        };
+      }, [props]);
+
+      return <WrappedComponent {...props} />;
+    };
+
+    SideEffect.canUseDOM = canUseDOM;
+    SideEffect.peek = () => state;
+    SideEffect.displayName = `SideEffect(${getDisplayName(WrappedComponent)})`;
+    SideEffect.rewind = function() {
+      if (SideEffect.canUseDOM) {
+        throw new Error(
+          'You may only call rewind() on the server. Call peek() to read the current state.'
+        );
       }
 
-      componentDidUpdate() {
-        emitChange();
-      }
-
-      componentWillUnmount() {
-        const index = mountedInstances.indexOf(this);
-        mountedInstances.splice(index, 1);
-        emitChange();
-      }
-
-      render() {
-        return <WrappedComponent {...this.props} />;
-      }
-    }
+      const recordedState = state;
+      state = undefined;
+      mountedInstances = [];
+      return recordedState;
+    };
 
     return SideEffect;
-  }
+  };
 }

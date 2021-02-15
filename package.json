@@ -7,8 +7,8 @@
     "build": "node scripts/build.js",
     "clean": "rimraf lib",
     "prepare": "npm test && npm run clean && npm run build",
-    "test": "mocha",
-    "test:watch": "mocha --watch",
+    "test": "mocha --require setup.js --recursive ./test",
+    "test:watch": "mocha --watch --require setup.js --recursive ./test",
     "test:cov": "babel-node ./node_modules/.bin/isparta cover ./node_modules/.bin/_mocha"
   },
   "repository": {
