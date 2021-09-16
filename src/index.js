@@ -67,9 +67,14 @@ export default function withSideEffect(
         return recordedState;
       }
 
-      UNSAFE_componentWillMount() {
-        mountedInstances.push(this);
-        emitChange();
+      componentDidMount() {
+        // Although this shouldn't be called on the server,
+        // Enzyme *does* call it, so we have to make sure
+        // that it only happens once using this flag check.
+        if (SideEffect.canUseDOM) {
+          mountedInstances.unshift(this);
+          emitChange();
+        }
       }
 
       componentDidUpdate() {
@@ -83,6 +88,12 @@ export default function withSideEffect(
       }
 
       render() {
+        if (!SideEffect.canUseDOM) {
+          // This only works for non-streaming SSR.
+          // However, that's the issue with the whole approach in general.
+          mountedInstances.push(this);
+          emitChange();
+        }
         return <WrappedComponent {...this.props} />;
       }
     }
